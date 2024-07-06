@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -36,9 +35,10 @@ public class EntryWindow {
 	private DefaultTableModel searchTableDTM;
 	private JScrollPane searchTableScroll;
 	private JButton searchButton;
+	private JButton refreshButton;
 	private JButton deleteButton;
 	
-	private EntryReadWrite entryRW;
+	private EntryReadWrite entryRW = new EntryReadWrite();
 	
 	public EntryWindow() throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, 
     BadPaddingException, IllegalBlockSizeException {
@@ -57,7 +57,7 @@ public class EntryWindow {
 		}
 		
 		// Read entries and if it returns an empty hash map, put an error message and exit
-		entryRW = new EntryReadWrite();
+		// entryRW = new EntryReadWrite();
 		entryRW.readIn();
 		
 		if (entryRW.getEntries() == null) {
@@ -141,7 +141,8 @@ public class EntryWindow {
 					saveEntry();
 				}
 			}
-		});;
+		});
+		nameField.setColumns(100);
 		c.ipadx = 100;
 		c.gridx = 1;
 		c.gridy = 0;
@@ -196,7 +197,6 @@ public class EntryWindow {
 				saveEntry();
 			}
 		});
-		
 		entrySavePanel.add(saveButton, c);
 	}
 	
@@ -231,13 +231,16 @@ public class EntryWindow {
 			searchTableDTM.addColumn(name);
 		}
 		
+		// Fill up the search table with all entries
+		refreshTable();
+		
 		searchTableScroll = new JScrollPane(searchTable);
 		c.ipadx = 500;
 		c.ipady = 100;
 		c.gridx = 1;
 		c.gridy = 0;
 		c.gridwidth = 3;
-		c.gridheight = 4;
+		c.gridheight = 5;
 		entrySearchPanel.add(searchTableScroll, c);
 		
 		searchButton = new JButton("Search");
@@ -255,12 +258,22 @@ public class EntryWindow {
 				}
 			}
 		});
-		
 		entrySearchPanel.add(searchButton, c);
+		
+		refreshButton = new JButton("Refresh");
+		c.gridx = 0;
+		c.gridy = 3;
+		
+		refreshButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				refreshTable();
+			}
+		});
+		entrySearchPanel.add(refreshButton, c);
 		
 		deleteButton = new JButton("Delete");
 		c.gridx = 0;
-		c.gridy = 3;
+		c.gridy = 4;
 		
 		deleteButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -277,21 +290,7 @@ public class EntryWindow {
 				}
 			}
 		});
-		
 		entrySearchPanel.add(deleteButton, c);
-		
-		// Fill up the search table with all entries
-		String[] entryArray = new String[EntryReadWrite.ENTRY_SIZE];
-		
-		for (String entry : entryRW.entries.keySet()) {
-			entryArray[EntryReadWrite.ENTRY_NAME_POS] = entry;
-			entryArray[EntryReadWrite.ENTRY_USER_POS] = entryRW.getEntries().get(entry)[EntryReadWrite.HASH_MAP_USER_POS];
-			entryArray[EntryReadWrite.ENTRY_PASS_POS] = entryRW.getEntries().get(entry)[EntryReadWrite.HASH_MAP_PASS_POS];
-			searchTableDTM.addRow(entryArray);
-		}
-		
-		searchTableDTM.fireTableDataChanged();
-		searchTable.revalidate();
 	}
 	
 	private void saveEntry() {
@@ -312,16 +311,32 @@ public class EntryWindow {
 		}
 	}
 	
+	private void refreshTable() {
+		String[] entryArray = new String[EntryReadWrite.ENTRY_SIZE];
+		
+		searchTableDTM.setNumRows(0);
+				
+		for (String entryName : entryRW.entries.keySet()) {
+			entryArray[EntryReadWrite.ENTRY_NAME_POS] = entryName;
+			entryArray[EntryReadWrite.ENTRY_USER_POS] = entryRW.getEntries().get(entryName)[EntryReadWrite.HASH_MAP_USER_POS];
+			entryArray[EntryReadWrite.ENTRY_PASS_POS] = entryRW.getEntries().get(entryName)[EntryReadWrite.HASH_MAP_PASS_POS];
+			searchTableDTM.addRow(entryArray);
+		}
+				
+		searchTableDTM.fireTableDataChanged();
+		searchTable.revalidate();
+	}
+	
 	private void searchEntry() {
 		String[] matchingEntry = new String[EntryReadWrite.ENTRY_SIZE];
 		
 		searchTableDTM.setNumRows(0);
 		
-		for (String entry : entryRW.entries.keySet()) {
-			if (entry.toLowerCase().contains(searchField.getText())) {
-				matchingEntry[EntryReadWrite.ENTRY_NAME_POS] = entry;
-				matchingEntry[EntryReadWrite.ENTRY_USER_POS] = entryRW.getEntries().get(entry)[EntryReadWrite.HASH_MAP_USER_POS];
-				matchingEntry[EntryReadWrite.ENTRY_PASS_POS] = entryRW.getEntries().get(entry)[EntryReadWrite.HASH_MAP_PASS_POS];
+		for (String entryName : entryRW.entries.keySet()) {
+			if (entryName.toLowerCase().contains(searchField.getText())) {
+				matchingEntry[EntryReadWrite.ENTRY_NAME_POS] = entryName;
+				matchingEntry[EntryReadWrite.ENTRY_USER_POS] = entryRW.getEntries().get(entryName)[EntryReadWrite.HASH_MAP_USER_POS];
+				matchingEntry[EntryReadWrite.ENTRY_PASS_POS] = entryRW.getEntries().get(entryName)[EntryReadWrite.HASH_MAP_PASS_POS];
 				searchTableDTM.addRow(matchingEntry);
 			}
 		}

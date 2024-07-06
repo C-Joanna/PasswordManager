@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.TreeMap;
 import javax.crypto.*;
 import javax.crypto.spec.*;
 import java.security.*;
@@ -19,10 +19,11 @@ public class EntryReadWrite {
 	static final int ENTRY_USER_POS = 1;
 	static final int ENTRY_PASS_POS = 2;
 	
-	// A hash map will be used to store entries, where the key will be the entry name and the username and password will be stored as a String array.
+	// A tree map will be used to store entries, where the key will be the entry name and the username and password will be stored as a String array.
 	static final int HASH_MAP_USER_POS = 0;
 	static final int HASH_MAP_PASS_POS = 1;
 	
+	// Default path is "C:\Users\Joanna\eclipse-workspace\PasswordManager\PasswordEntries.txt"
 	static final String FILE_NAME = "PasswordEntries.txt";
 	
 	// https://www.baeldung.com/java-cipher-class
@@ -32,7 +33,7 @@ public class EntryReadWrite {
 	private Cipher RWCipher;
 	private SecretKey cipherKey;
 	
-	public HashMap<String, String[]> entries = new HashMap<>();
+	public TreeMap<String, String[]> entries = new TreeMap<>();
 	public File entriesFile = new File(FILE_NAME);
 	public boolean fileChanged = false;
 	
@@ -45,7 +46,6 @@ public class EntryReadWrite {
 			
 		try {
 			// Try to make a new file for password entries. If it already exists, read in the entries.
-			// Default path is "C:\Users\Joanna\eclipse-workspace\PasswordManager\PasswordEntries.txt"
 			
 			if (!entriesFile.createNewFile()) {
 				FileReader reader = new FileReader(FILE_NAME);
@@ -55,7 +55,7 @@ public class EntryReadWrite {
 				while ((line = bufferedReader.readLine()) != null) {
 					String[] splitLine = decrypt(line).split("\u00A9");
 				
-					// Stop if an entry is of an invalid size
+					// Stop if an entry is of an invalid size.
 					if (splitLine.length != ENTRY_SIZE) {
 						invalid = true;
 						break;
@@ -64,7 +64,7 @@ public class EntryReadWrite {
 					String entryName = splitLine[ENTRY_NAME_POS];
 					String[] entryUserPass = {splitLine[ENTRY_USER_POS], splitLine[ENTRY_PASS_POS]};
 				
-					// Put into hash map using the entry name as the key
+					// Put into the tree map using the entry name as the key.
 					entries.put(entryName, entryUserPass);
 				}
 							
@@ -104,6 +104,7 @@ public class EntryReadWrite {
 			for (String name : entries.keySet()) {
 				writer.append(encrypt(name + "\u00A9" + entries.get(name)[HASH_MAP_USER_POS] + "\u00A9" + entries.get(name)[HASH_MAP_PASS_POS]) + "\n");
 			}
+			
 			writer.close();
 		}
 		
@@ -133,7 +134,7 @@ public class EntryReadWrite {
 		return new String(decrypted, StandardCharsets.UTF_8);
 	}
 	
-	public HashMap<String, String[]> getEntries() {
+	public TreeMap<String, String[]> getEntries() {
 		return entries;
 	}
 	
