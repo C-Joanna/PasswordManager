@@ -23,7 +23,6 @@ public class EntryReadWrite {
 	static final int HASH_MAP_USER_POS = 0;
 	static final int HASH_MAP_PASS_POS = 1;
 	
-	// Default path is "C:\Users\Joanna\eclipse-workspace\PasswordManager\PasswordEntries.txt"
 	static final String FILE_NAME = "PasswordEntries.txt";
 	
 	// https://www.baeldung.com/java-cipher-class

@@ -148,7 +148,7 @@ public class EntryWindow {
 		c.gridy = 0;
 		entrySavePanel.add(nameField, c);
 		
-		userFieldLabel = new JLabel("Entry Username");
+		userFieldLabel = new JLabel("Username");
 		c.ipadx = 0;
 		c.gridx = 0;
 		c.gridy = 1;
@@ -167,7 +167,7 @@ public class EntryWindow {
 		c.gridy = 1;
 		entrySavePanel.add(userField, c);
 		
-		passFieldLabel = new JLabel("Entry Password");
+		passFieldLabel = new JLabel("Password");
 		c.ipadx = 0;
 		c.gridx = 0;
 		c.gridy = 2;
@@ -281,7 +281,7 @@ public class EntryWindow {
 					int decision = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the selected entry?", "Notice", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 					
 					if (decision == JOptionPane.YES_OPTION) {
-						entryRW.deleteEntry((String)searchTable.getValueAt(0, searchTable.getSelectedRow()));
+						entryRW.deleteEntry((String)searchTable.getValueAt(searchTable.getSelectedRow(), 0));
 						searchTableDTM.removeRow(searchTable.getSelectedRow());
 						
 						searchTableDTM.fireTableDataChanged();
